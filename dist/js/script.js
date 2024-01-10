@@ -92,19 +92,22 @@ document.addEventListener("DOMContentLoaded", () => {
   const modalTrigger = document.querySelectorAll("[data-modal]");
   const modal = document.querySelector(".modal");
   const modalClose = document.querySelector("[data-close]");
+  const openModal = () => {
+    modal.classList.add("show");
+    modal.classList.remove("hide");
+    document.body.style.overflow = "hidden"; // Блокируем скролл страницы при открытой модалке
+  };
   modalTrigger.forEach(btn => {
-    btn.addEventListener("click", () => {
-      // Открытие модального окна при клике на кнопку
-      modal.classList.add("show");
-      modal.classList.remove("hide");
-      document.body.style.overflow = "hidden"; // Блокируем скролл страницы при открытой модалке
-    });
+    btn.addEventListener("click", openModal); // Открытие модального окна при клике на кнопку
   });
+  const modalId = setTimeout(openModal, 3000);
   const closeModal = () => {
     // Закрытие модального окна
     modal.classList.add("hide");
     modal.classList.remove("show");
     document.body.style.overflow = ""; // Возвращаем скролл при закрытии модалки
+
+    clearInterval(modalId);
   };
   modalClose.addEventListener("click", closeModal); // Закрытие при клике на кнопку
 
@@ -120,6 +123,13 @@ document.addEventListener("DOMContentLoaded", () => {
       closeModal();
     }
   });
+  const openModalAfterScroll = () => {
+    if (window.scrollY + document.documentElement.clientWidth >= document.documentElement.scrollHeight - 1) {
+      openModal();
+      window.removeEventListener("scroll", openModalAfterScroll);
+    }
+  };
+  window.addEventListener("scroll", openModalAfterScroll);
 });
 /******/ })()
 ;
