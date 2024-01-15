@@ -100,9 +100,7 @@ document.addEventListener("DOMContentLoaded", () => {
   modalTrigger.forEach(btn => {
     btn.addEventListener("click", openModal); // Открытие модального окна при клике на кнопку
   });
-
-  // const modalId = setTimeout(openModal, 3000);
-
+  const modalId = setTimeout(openModal, 3000);
   const closeModal = () => {
     // Закрытие модального окна
     modal.classList.add("hide");
@@ -125,42 +123,43 @@ document.addEventListener("DOMContentLoaded", () => {
       closeModal();
     }
   });
-
-  // const openModalAfterScroll = () => {
-  //   if (
-  //     window.scrollY + document.documentElement.clientWidth >=
-  //     document.documentElement.scrollHeight - 1
-  //   ) {
-  //     openModal();
-  //     window.removeEventListener("scroll", openModalAfterScroll);
-  //   }
-  // };
-
-  // window.addEventListener("scroll", openModalAfterScroll);
+  const openModalAfterScroll = () => {
+    if (window.scrollY + document.documentElement.clientWidth >= document.documentElement.scrollHeight - 1) {
+      openModal();
+      window.removeEventListener("scroll", openModalAfterScroll);
+    }
+  };
+  window.addEventListener("scroll", openModalAfterScroll);
 
   // Menu Cards
   class MenuCard {
-    constructor(src, alt, title, desc, price, parentSelector) {
+    constructor(src, alt, title, desc, price, parentSelector, ...classes) {
       this.src = src;
       this.alt = alt;
       this.title = title;
       this.desc = desc;
       this.price = price;
       this.parent = document.querySelector(parentSelector);
+      this.classes = classes;
     }
     render() {
       const element = document.createElement("div");
+      if (this.classes.length === 0) {
+        this.classes = "menu__item";
+        element.classList.add(this.classes);
+      } else {
+        this.classes.forEach(className => element.classList.add(className));
+      }
       element.innerHTML = `          
-        <div class="menu__item">
-          <img src="${this.src}" alt="${this.alt}" />
-          <h3 class="menu__item-subtitle">${this.title}</h3>
-          <div class="menu__item-descr">${this.desc}</div>
-          <div class="menu__item-divider"></div>
-          <div class="menu__item-price">
-            <div class="menu__item-cost">Цена:</div>
-            <div class="menu__item-total"><span>${this.price}</span> грн/день</div>
-          </div>
-        </div>`;
+        <img src="${this.src}" alt="${this.alt}" />
+        <h3 class="menu__item-subtitle">${this.title}</h3>
+        <div class="menu__item-descr">${this.desc}</div>
+        <div class="menu__item-divider"></div>
+        <div class="menu__item-price">
+          <div class="menu__item-cost">Цена:</div>
+          <div class="menu__item-total"><span>${this.price}</span> грн/день</div>
+        </div>
+      `;
       this.parent.append(element);
     }
   }
