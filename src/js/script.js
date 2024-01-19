@@ -1,3 +1,5 @@
+const { data } = require("autoprefixer");
+
 document.addEventListener("DOMContentLoaded", () => {
   // Tabs
   const tabsParent = document.querySelector(".tabheader__items");
@@ -213,4 +215,58 @@ document.addEventListener("DOMContentLoaded", () => {
     "430",
     ".menu .container"
   ).render();
+
+  const forms = document.querySelectorAll("form");
+
+  const messages = {
+    load: "Загрузка...",
+    success: "Спасибо! Мы с вами свяжемся!",
+    error: "Что-то пошло не так :(",
+  };
+
+  const postForm = (form) => {
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+
+      const message = document.createElement("div");
+      message.textContent = messages.load;
+      form.append(message);
+
+      const request = new XMLHttpRequest();
+      request.open(
+        "POST",
+        "https://65aa5255081bd82e1d96a6ac.mockapi.io/applications"
+      );
+      request.setRequestHeader("Content-Type", "application/json");
+
+      const formData = new FormData(form);
+      const data = {};
+
+      formData.forEach((value, key) => {
+        data[key] = value;
+      });
+
+      const json = JSON.stringify(data);
+
+      request.send(json);
+
+      request.addEventListener("load", () => {
+        if (request.status === 201) {
+          message.textContent = messages.success;
+
+          form.reset();
+
+          setTimeout(() => {
+            message.remove();
+          }, 3000);
+        } else {
+          message.textContent = messages.error;
+        }
+      });
+    });
+  };
+
+  forms.forEach((item) => {
+    postForm(item);
+  });
 });
