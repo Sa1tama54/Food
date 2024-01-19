@@ -17673,7 +17673,6 @@ document.addEventListener("DOMContentLoaded", () => {
   // Modal;
   const modalTrigger = document.querySelectorAll("[data-modal]");
   const modal = document.querySelector(".modal");
-  const modalClose = document.querySelector("[data-close]");
   const openModal = () => {
     modal.classList.add("show");
     modal.classList.remove("hide");
@@ -17691,11 +17690,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     clearInterval(modalId);
   };
-  modalClose.addEventListener("click", closeModal); // Закрытие при клике на кнопку
-
   modal.addEventListener("click", e => {
     // Закрытие при клике на область вокруг модалки
-    if (e.target === modal) {
+    if (e.target === modal || e.target.getAttribute("data-close") === "") {
       closeModal();
     }
   });
@@ -17750,16 +17747,20 @@ document.addEventListener("DOMContentLoaded", () => {
   new MenuCard("img/tabs/post.jpg", "post", "Меню “Постное”", "Меню “Постное” - это тщательный подбор ингредиентов: полное отсутствие продуктов животного происхождения, молоко из миндаля, овса, кокоса или гречки, правильное количество белков за счет тофу и импортных вегетарианских стейков.", "430", ".menu .container").render();
   const forms = document.querySelectorAll("form");
   const messages = {
-    load: "Загрузка...",
+    load: "img/form/spinner.svg",
     success: "Спасибо! Мы с вами свяжемся!",
     error: "Что-то пошло не так :("
   };
   const postForm = form => {
     form.addEventListener("submit", e => {
       e.preventDefault();
-      const message = document.createElement("div");
-      message.textContent = messages.load;
-      form.append(message);
+      const statusMessage = document.createElement("img");
+      statusMessage.src = messages.load;
+      statusMessage.style.cssText = `
+        display: block;
+        margin: 0 auto;
+      `;
+      form.insertAdjacentElement("afterend", statusMessage);
       const request = new XMLHttpRequest();
       request.open("POST", "https://65aa5255081bd82e1d96a6ac.mockapi.io/applications");
       request.setRequestHeader("Content-Type", "application/json");
@@ -17772,13 +17773,11 @@ document.addEventListener("DOMContentLoaded", () => {
       request.send(json);
       request.addEventListener("load", () => {
         if (request.status === 201) {
-          message.textContent = messages.success;
           form.reset();
-          setTimeout(() => {
-            message.remove();
-          }, 3000);
+          statusMessage.remove();
+          showThanksModal(messages.success);
         } else {
-          message.textContent = messages.error;
+          showThanksModal(messages.error);
         }
       });
     });
@@ -17786,6 +17785,26 @@ document.addEventListener("DOMContentLoaded", () => {
   forms.forEach(item => {
     postForm(item);
   });
+  const showThanksModal = message => {
+    const modalDialog = document.querySelector(".modal__dialog");
+    modalDialog.classList.add("hide");
+    openModal();
+    const messageDialog = document.createElement("div");
+    messageDialog.classList.add("modal__dialog");
+    messageDialog.innerHTML = `
+      <div class="modal__content">
+        <div class="modal__title">${message}</div>
+        <div data-close class="modal__close">&times;</div>
+      </div>
+    `;
+    document.querySelector(".modal").append(messageDialog);
+    setTimeout(() => {
+      messageDialog.remove();
+      modalDialog.classList.add("show");
+      modalDialog.classList.remove("hide");
+      closeModal();
+    }, 5000);
+  };
 });
 })();
 
