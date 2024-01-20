@@ -1,5 +1,3 @@
-const { data } = require("autoprefixer");
-
 document.addEventListener("DOMContentLoaded", () => {
   // Tabs
   const tabsParent = document.querySelector(".tabheader__items");
@@ -234,13 +232,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
       form.insertAdjacentElement("afterend", statusMessage);
 
-      const request = new XMLHttpRequest();
-      request.open(
-        "POST",
-        "https://65aa5255081bd82e1d96a6ac.mockapi.io/applications"
-      );
-      request.setRequestHeader("Content-Type", "application/json");
-
       const formData = new FormData(form);
       const data = {};
 
@@ -248,19 +239,24 @@ document.addEventListener("DOMContentLoaded", () => {
         data[key] = value;
       });
 
-      const json = JSON.stringify(data);
-
-      request.send(json);
-
-      request.addEventListener("load", () => {
-        if (request.status === 201) {
-          form.reset();
-          statusMessage.remove();
+      fetch("https://65aa5255081bd82e1d96a6ac.mockapi.io/applications", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      })
+        .then((response) => {
+          console.log(response);
           showThanksModal(messages.success);
-        } else {
+        })
+        .catch(() => {
           showThanksModal(messages.error);
-        }
-      });
+        })
+        .finally(() => {
+          statusMessage.remove();
+          form.reset();
+        });
     });
   };
 
